@@ -1,15 +1,20 @@
 package jieba
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/blevesearch/bleve/analysis"
+	"github.com/blevesearch/bleve/registry"
+
 	"github.com/huangjunwen/gojieba"
 )
 
 const FilterName = "filter_jieba"
 
+// JiebaFilter implements word segmentation for Chinese. It's a filter
+// so that is can used with other tokenizer (e.g. unicode).
 type JiebaFilter struct {
 	seg *gojieba.Jieba
 }
@@ -109,4 +114,20 @@ func (f *JiebaFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 	processIdeoSeq()
 
 	return output
+}
+
+func JiebaFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+	dictDir := ""
+	if r, ok := config["jieba_dict_dir"]; ok {
+		dictDir, ok = r.(string)
+		if !ok {
+			return nil, fmt.Errorf("'jieba_dict_dir' must be a string")
+		}
+	}
+
+	return NewJiebaFilter(dictDir), nil
+}
+
+func init() {
+	registry.RegisterTokenFilter(FilterName, JiebaFilterConstructor)
 }
