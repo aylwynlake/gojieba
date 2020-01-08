@@ -91,6 +91,11 @@ class KeywordExtractor {
     partial_sort(keywords.begin(), keywords.begin() + topN, keywords.end(), Compare);
     keywords.resize(topN);
   }
+
+  bool IsStopWord(const string& word) const {
+    return stopWords_.find(word) != stopWords_.end();
+  }
+
  private:
   void LoadIdfDict(const string& idfPath) {
     ifstream ifs(idfPath.c_str());

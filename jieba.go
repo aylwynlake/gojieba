@@ -98,6 +98,12 @@ func (x *Jieba) AddWord(s string) {
 	C.AddWord(x.jieba, cstr)
 }
 
+func (x *Jieba) IsStopWord(s string) bool {
+	cstr := C.CString(s)
+	defer C.free(unsafe.Pointer(cstr))
+	return C.IsStopWord(x.jieba, cstr) != C.int(0)
+}
+
 func (x *Jieba) Tokenize(s string, mode TokenizeMode, hmm bool) []Word {
 	c_int_hmm := 0
 	if hmm {
