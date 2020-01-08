@@ -10,7 +10,7 @@ import (
 func TestJiebaFilter(t *testing.T) {
 
 	tokenizer := unicode.NewUnicodeTokenizer()
-	filter := NewJiebaFilter("")
+	filter := NewJiebaFilter("", true, true)
 
 	for _, testCase := range []struct {
 		Text         string
@@ -27,6 +27,14 @@ func TestJiebaFilter(t *testing.T) {
 		{
 			Text:         "我爱吃的水果包括西瓜, 橙子等等",
 			ExpectResult: []string{"爱", "吃", "水果", "包括", "西瓜", "橙子"},
+		},
+		{
+			Text:         "吃苦耐劳",
+			ExpectResult: []string{"吃苦", "耐劳", "吃苦耐劳"},
+		},
+		{
+			Text:         "科学院",
+			ExpectResult: []string{"科学", "学院", "科学院"},
 		},
 	} {
 

@@ -16,10 +16,12 @@ const FilterName = "filter_jieba"
 // JiebaFilter implements word segmentation for Chinese. It's a filter
 // so that is can used with other tokenizer (e.g. unicode).
 type JiebaFilter struct {
-	seg *gojieba.Jieba
+	seg  *gojieba.Jieba
+	mode gojieba.TokenizeMode
+	hmm  bool
 }
 
-func NewJiebaFilter(dictDir string) *JiebaFilter {
+func NewJiebaFilter(dictDir string, searchMode, useHMM bool) *JiebaFilter {
 
 	dictPath := gojieba.DICT_PATH
 	hmmPath := gojieba.HMM_PATH
@@ -34,8 +36,14 @@ func NewJiebaFilter(dictDir string) *JiebaFilter {
 		stopWordsPath = filepath.Join(dictDir, "stop_words.utf8")
 	}
 
+	mode := gojieba.DefaultMode
+	if searchMode {
+		mode = gojieba.SearchMode
+	}
 	return &JiebaFilter{
-		seg: gojieba.NewJieba(dictPath, hmmPath, userDictPath, idfPath, stopWordsPath),
+		seg:  gojieba.NewJieba(dictPath, hmmPath, userDictPath, idfPath, stopWordsPath),
+		mode: mode,
+		hmm:  useHMM,
 	}
 }
 
@@ -69,7 +77,7 @@ func (f *JiebaFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 		text := textBuilder.String()
 
 		// Tokenize and push non-stop words
-		for _, word := range f.seg.Tokenize(text, gojieba.DefaultMode, true) {
+		for _, word := range f.seg.Tokenize(text, f.mode, f.hmm) {
 			if f.seg.IsStopWord(word.Str) {
 				continue
 			}
@@ -125,7 +133,23 @@ func JiebaFilterConstructor(config map[string]interface{}, cache *registry.Cache
 		}
 	}
 
-	return NewJiebaFilter(dictDir), nil
+	searchMode := false
+	if r, ok := config["jieba_search_mode"]; ok {
+		searchMode, ok = r.(bool)
+		if !ok {
+			return nil, fmt.Errorf("'jieba_search_mode' must be a bool")
+		}
+	}
+
+	useHMM := true
+	if r, ok := config["jieba_use_hmm"]; ok {
+		useHMM, ok = r.(bool)
+		if !ok {
+			return nil, fmt.Errorf("'jieba_use_hmm' must be a bool")
+		}
+	}
+
+	return NewJiebaFilter(dictDir, searchMode, useHMM), nil
 }
 
 func init() {
