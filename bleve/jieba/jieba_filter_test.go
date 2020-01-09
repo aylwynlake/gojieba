@@ -36,6 +36,10 @@ func TestJiebaFilter(t *testing.T) {
 			Text:         "科学院",
 			ExpectResult: []string{"科学", "学院", "科学院"},
 		},
+		//{
+		//	Text:         "小明硕士毕业于中国科学院计算所，后在日本京都大学深造",
+		//	ExpectResult: []string{},
+		//},
 	} {
 
 		tokens := filter.Filter(tokenizer.Tokenize([]byte(testCase.Text)))

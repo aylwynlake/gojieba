@@ -2,6 +2,7 @@ package jieba
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +14,8 @@ import (
 
 const FilterName = "filter_jieba"
 
+const DictDirEnvName = "JIEBA_DICT_DIR"
+
 // JiebaFilter implements word segmentation for Chinese. It's a filter
 // so that is can used with other tokenizer (e.g. unicode).
 type JiebaFilter struct {
@@ -22,6 +25,16 @@ type JiebaFilter struct {
 }
 
 func NewJiebaFilter(dictDir string, searchMode, useHMM bool) *JiebaFilter {
+
+	// Try env if dictDir is empty.
+	if dictDir == "" {
+		dictDir = os.Getenv(DictDirEnvName)
+	}
+
+	mode := gojieba.DefaultMode
+	if searchMode {
+		mode = gojieba.SearchMode
+	}
 
 	dictPath := gojieba.DICT_PATH
 	hmmPath := gojieba.HMM_PATH
@@ -36,10 +49,6 @@ func NewJiebaFilter(dictDir string, searchMode, useHMM bool) *JiebaFilter {
 		stopWordsPath = filepath.Join(dictDir, "stop_words.utf8")
 	}
 
-	mode := gojieba.DefaultMode
-	if searchMode {
-		mode = gojieba.SearchMode
-	}
 	return &JiebaFilter{
 		seg:  gojieba.NewJieba(dictPath, hmmPath, userDictPath, idfPath, stopWordsPath),
 		mode: mode,
@@ -133,7 +142,7 @@ func JiebaFilterConstructor(config map[string]interface{}, cache *registry.Cache
 		}
 	}
 
-	searchMode := false
+	searchMode := true
 	if r, ok := config["jieba_search_mode"]; ok {
 		searchMode, ok = r.(bool)
 		if !ok {
