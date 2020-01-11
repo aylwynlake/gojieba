@@ -124,6 +124,11 @@ func (f *JiebaFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 	return output
 }
 
+// JiebaInstance returns the underly JiebaInstance.
+func (f *JiebaFilter) JiebaInstance() *JiebaInstance {
+	return f.inst
+}
+
 func JiebaFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
 	dictDir := ""
 	if r, ok := config["jieba_dict_dir"]; ok {

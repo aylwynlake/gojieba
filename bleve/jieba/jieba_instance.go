@@ -14,38 +14,18 @@ type JiebaInstance struct {
 	val     *gojieba.Jieba
 }
 
-var (
-	jiebaInstancesMu = &sync.Mutex{}
-	jiebaInstances   = map[string]*JiebaInstance{}
-)
-
-// NewJiebaInstance creates a new JiebaInstance or reuse an exists JiebaInstance
-// for a given dict directory.
+// NewJiebaInstance creates a new JiebaInstance for a given dict directory.
 func NewJiebaInstance(dictDir string) *JiebaInstance {
-	jiebaInstancesMu.Lock()
-	defer jiebaInstancesMu.Unlock()
-
-	if inst, ok := jiebaInstances[dictDir]; ok {
-		return inst
-	}
-
 	inst := &JiebaInstance{
 		dictDir: dictDir,
 	}
 	inst.val = inst.load()
-	jiebaInstances[dictDir] = inst
 	return inst
 }
 
-// FindJiebaInstance finds an exists JiebaInstance for a given dict directory.
-func FindJiebaInstance(dictDir string) *JiebaInstance {
-	jiebaInstancesMu.Lock()
-	defer jiebaInstancesMu.Unlock()
-
-	if inst, ok := jiebaInstances[dictDir]; ok {
-		return inst
-	}
-	return nil
+// DictDir returns the dict directory.
+func (inst *JiebaInstance) DictDir() string {
+	return inst.dictDir
 }
 
 // Get returns *gojieba.Jieba and a defer function which MUST be called after using.
