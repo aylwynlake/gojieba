@@ -3,7 +3,6 @@ package jieba
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/blevesearch/bleve/analysis"
@@ -19,7 +18,7 @@ const DictDirEnvName = "JIEBA_DICT_DIR"
 // JiebaFilter implements word segmentation for Chinese. It's a filter
 // so that is can used with other tokenizer (e.g. unicode).
 type JiebaFilter struct {
-	seg  *gojieba.Jieba
+	inst *JiebaInstance
 	mode gojieba.TokenizeMode
 	hmm  bool
 }
@@ -36,21 +35,10 @@ func NewJiebaFilter(dictDir string, searchMode, useHMM bool) *JiebaFilter {
 		mode = gojieba.SearchMode
 	}
 
-	dictPath := gojieba.DICT_PATH
-	hmmPath := gojieba.HMM_PATH
-	userDictPath := gojieba.USER_DICT_PATH
-	idfPath := gojieba.IDF_PATH
-	stopWordsPath := gojieba.STOP_WORDS_PATH
-	if dictDir != "" {
-		dictPath = filepath.Join(dictDir, "jieba.dict.utf8")
-		hmmPath = filepath.Join(dictDir, "hmm_model.utf8")
-		userDictPath = filepath.Join(dictDir, "user.dict.utf8")
-		idfPath = filepath.Join(dictDir, "idf.utf8")
-		stopWordsPath = filepath.Join(dictDir, "stop_words.utf8")
-	}
+	inst := NewJiebaInstance(dictDir)
 
 	return &JiebaFilter{
-		seg:  gojieba.NewJieba(dictPath, hmmPath, userDictPath, idfPath, stopWordsPath),
+		inst: inst,
 		mode: mode,
 		hmm:  useHMM,
 	}
@@ -65,10 +53,13 @@ func (f *JiebaFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 		output = append(output, tok)
 	}
 
-	// [ideoSeqStart, ideoSeqEnd] is the continuous seq of ideographic tokens in input,
+	// [ideoSeqStart, ideoSeqEnd] is a continuous seq of ideographic tokens in input,
 	// we need to join them back into one and tokenize it again using jieba
 	ideoSeqStart := -1
 	ideoSeqEnd := -1
+
+	seg, segCloser := f.inst.Get()
+	defer segCloser()
 
 	processIdeoSeq := func() {
 		if ideoSeqStart < 0 {
@@ -86,8 +77,8 @@ func (f *JiebaFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 		text := textBuilder.String()
 
 		// Tokenize and push non-stop words
-		for _, word := range f.seg.Tokenize(text, f.mode, f.hmm) {
-			if f.seg.IsStopWord(word.Str) {
+		for _, word := range seg.Tokenize(text, f.mode, f.hmm) {
+			if seg.IsStopWord(word.Str) {
 				continue
 			}
 			pushToken(&analysis.Token{
