@@ -27,10 +27,7 @@ type JiebaInstance struct {
 
 // NewJiebaInstance creates a new JiebaInstance or returns an exists JiebaInstance for a given dict directory.
 func NewJiebaInstance(dictDir string) *JiebaInstance {
-	// Try env if dictDir is empty.
-	if dictDir == "" {
-		dictDir = os.Getenv(DictDirEnvName)
-	}
+	processDictDir(&dictDir)
 
 	// Big lock here, but ok.
 	jiebaInstancesMu.Lock()
@@ -53,6 +50,8 @@ func NewJiebaInstance(dictDir string) *JiebaInstance {
 
 // FindJiebaInstance returns an exists JiebaInstance for a given dict directory or nil if not found.
 func FindJiebaInstance(dictDir string) *JiebaInstance {
+	processDictDir(&dictDir)
+
 	jiebaInstancesMu.RLock()
 	defer jiebaInstancesMu.RUnlock()
 	return jiebaInstances[dictDir]
@@ -67,6 +66,13 @@ func FindAllJiebaInstances() []*JiebaInstance {
 		ret = append(ret, v)
 	}
 	return ret
+}
+
+func processDictDir(dictDir *string) {
+	// Try env if dictDir is empty.
+	if *dictDir == "" {
+		*dictDir = os.Getenv(DictDirEnvName)
+	}
 }
 
 // DictDir returns the dict directory.
