@@ -2,7 +2,6 @@ package jieba
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/blevesearch/bleve/analysis"
@@ -13,8 +12,6 @@ import (
 
 const FilterName = "filter_jieba"
 
-const DictDirEnvName = "JIEBA_DICT_DIR"
-
 // JiebaFilter implements word segmentation for Chinese. It's a filter
 // so that is can used with other tokenizer (e.g. unicode).
 type JiebaFilter struct {
@@ -24,11 +21,6 @@ type JiebaFilter struct {
 }
 
 func NewJiebaFilter(dictDir string, searchMode, useHMM bool) *JiebaFilter {
-
-	// Try env if dictDir is empty.
-	if dictDir == "" {
-		dictDir = os.Getenv(DictDirEnvName)
-	}
 
 	mode := gojieba.DefaultMode
 	if searchMode {
