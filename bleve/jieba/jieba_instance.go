@@ -58,6 +58,17 @@ func FindJiebaInstance(dictDir string) *JiebaInstance {
 	return jiebaInstances[dictDir]
 }
 
+// FindAllJiebaInstances returns all exists JiebaInstances.
+func FindAllJiebaInstances() []*JiebaInstance {
+	jiebaInstancesMu.RLock()
+	defer jiebaInstancesMu.RUnlock()
+	ret := make([]*JiebaInstance, 0, len(jiebaInstances))
+	for _, v := range jiebaInstances {
+		ret = append(ret, v)
+	}
+	return ret
+}
+
 // DictDir returns the dict directory.
 func (inst *JiebaInstance) DictDir() string {
 	return inst.dictDir
