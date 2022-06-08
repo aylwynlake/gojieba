@@ -6,7 +6,7 @@
 #ifdef __APPLE__
 #include <unordered_map>
 #include <unordered_set>
-#elif(__cplusplus == 201103L)
+#elif(__cplusplus >= 201103L)
 #include <unordered_map>
 #include <unordered_set>
 #elif defined _MSC_VER
@@ -28,8 +28,6 @@ using std::tr1::unordered_set;
 #include <deque>
 #include <fstream>
 #include <sstream>
-
-#define print(x) std::cout << x << std::endl
 
 namespace std {
 

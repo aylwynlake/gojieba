@@ -1,8 +1,7 @@
 # GoJieba [English](README_EN.md)
 
-[![Build Status](https://travis-ci.org/yanyiwu/gojieba.png?branch=master)](https://travis-ci.org/yanyiwu/gojieba) 
+[![Go](https://github.com/yanyiwu/gojieba/actions/workflows/go.yml/badge.svg)](https://github.com/yanyiwu/gojieba/actions/workflows/go.yml)
 [![Author](https://img.shields.io/badge/author-@yanyiwu-blue.svg?style=flat)](http://yanyiwu.com/) 
-[![Donate](https://img.shields.io/badge/donate-eos_git@yanyiwu-orange.svg)](https://eospark.com/account/gitatyanyiwu)
 [![Tag](https://img.shields.io/github/v/tag/yanyiwu/gojieba.svg)](https://github.com/yanyiwu/gojieba/releases)
 [![Performance](https://img.shields.io/badge/performance-excellent-brightgreen.svg?style=flat)](http://yanyiwu.com/work/2015/06/14/jieba-series-performance-test.html) 
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg?style=flat)](http://yanyiwu.mit-license.org)
@@ -24,13 +23,13 @@
 
 ## 用法
 
-```
+```bash
 go get github.com/yanyiwu/gojieba
 ```
 
 分词示例
 
-```
+```golang
 package main
 
 import (
@@ -135,13 +134,13 @@ See example in [jieba_test](jieba_test.go), [extractor_test](extractor_test.go)
 
 Unittest
 
-```
+```bash
 go test ./...
 ```
 
 Benchmark
 
-```
+```bash
 go test -bench "Jieba" -test.benchtime 10s
 go test -bench "Extractor" -test.benchtime 10s
 ```
